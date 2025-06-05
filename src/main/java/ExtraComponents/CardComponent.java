@@ -15,8 +15,10 @@ import javax.swing.JPanel;
 public class CardComponent extends JPanel{
     
     public CardComponent( ) {
-        setPreferredSize(new Dimension(100,100));
+        setPreferredSize(new Dimension(180,240));
         setBackground(Color.WHITE);
+        
+        putClientProperty("FlatLaf.style", "arc: 15");
         
     }
 }
