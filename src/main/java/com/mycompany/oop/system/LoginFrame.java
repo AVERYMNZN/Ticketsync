@@ -4,7 +4,6 @@
  */
 package com.mycompany.oop.system;
 import ExtraComponents.ImagePanel;
-import Modules.SVGIconLoader;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.formdev.flatlaf.util.SystemInfo;
 import Modules.FontLoader;
@@ -21,8 +20,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import Modules.StringManager;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 /**
@@ -80,10 +79,18 @@ public class LoginFrame extends JFrame{
         passwordLabel.setFont(fontLoader.loadHintFont(14f));
         loginButton.setFont(fontLoader.loadButtonFont(18f));
         
+        usernameTextField.setFont(fontLoader.loadTextfieldFont(12f));
+        
+        
         topHint.setForeground(new Color(201, 40, 89));
         welcome.setForeground(new Color(201, 40, 89));
         usernameLabel.setForeground(new Color(201, 40, 89));
         passwordLabel.setForeground(new Color(201, 40, 89));
+        
+        usernameTextField.setForeground(new Color(56, 13, 77));
+        usernameTextField.setCaretColor(new Color(56, 13, 77));
+        passwordField.setForeground(new Color(56, 13, 77));
+        passwordField.setCaretColor(new Color(56, 13, 77));
         
         loginButton.setBackground(new Color(201, 40, 89));
         loginButton.setForeground(Color.WHITE);
@@ -112,10 +119,20 @@ public class LoginFrame extends JFrame{
         add(usernameTextField); add(passwordField);
         add(loginButton);
         
-        
+        eventHandlers();
         revalidate();
         repaint();
         
+    }
+    
+    private void eventHandlers() {
+        loginButton.addActionListener(e -> {
+           if (usernameTextField.getText().equals("AVERY") && passwordField.getText().equals("123")) {
+               JOptionPane.showMessageDialog(this, "Login Successful");
+           } else {
+               JOptionPane.showMessageDialog(this, "Incorrect Credentials.");
+           }
+        });
     }
     
     private void setFrame() {

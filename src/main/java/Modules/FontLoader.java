@@ -40,6 +40,10 @@ public class FontLoader {
     public Font loadButtonFont(float size) {
         return loadFont("fonts/Qanelas-Bold.ttf", size);
     }
+    
+    public Font loadTextfieldFont(float size) {
+        return loadFont("fonts/Roboto.ttf", size);
+    }
 
     public Font loadCustomFont(String path, float size) {
         return loadFont(path, size);
