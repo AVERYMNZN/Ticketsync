@@ -75,7 +75,7 @@ public class LoginFrame extends JFrame{
         loginButton = new JButton(StringManager.get("app.loginLabel"));
         
         topHint.setFont(fontLoader.loadHintFont(14f));
-        welcome.setFont(fontLoader.loadTitleFont(28f));
+        welcome.setFont(fontLoader.loadTitleFont(30f));
         usernameLabel.setFont(fontLoader.loadHintFont(14f));
         passwordLabel.setFont(fontLoader.loadHintFont(14f));
         loginButton.setFont(fontLoader.loadButtonFont(18f));
@@ -91,7 +91,7 @@ public class LoginFrame extends JFrame{
       
         imgPanel.setBounds(426,0, 425, 550);
         topHint.setBounds(30, 25, 100, 20);
-        welcome.setBounds(90, 100, 250, 30);
+        welcome.setBounds(85, 90, 270, 40);
         
         usernameLabel.setBounds(115, 160, 100, 20);
         usernameTextField.setBounds(110, 180, 215, 40);
