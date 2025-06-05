@@ -43,12 +43,15 @@ public class LoginFrame extends JFrame{
             UIManager.setLookAndFeel(new FlatMacLightLaf());
             UIManager.put("TextComponent.arc", 15);
             UIManager.put("Button.arc", 999);
+            UIManager.put("TextComponent.focusColor", Color.RED);
             
         } catch (UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }
         
-        new LoginFrame();
+        SwingUtilities.invokeLater(() -> {
+            new LoginFrame();
+        });
         
     }
     
@@ -128,7 +131,8 @@ public class LoginFrame extends JFrame{
     private void eventHandlers() {
         loginButton.addActionListener(e -> {
            if (usernameTextField.getText().equals("AVERY") && String.valueOf(passwordField.getPassword()).equals("123")) {
-               JOptionPane.showMessageDialog(this, "Login Successful");
+               MainPage mp = new MainPage();
+               this.dispose();
            } else {
                JOptionPane.showMessageDialog(this, "Incorrect Credentials.");
            }
