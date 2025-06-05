@@ -127,7 +127,7 @@ public class LoginFrame extends JFrame{
     
     private void eventHandlers() {
         loginButton.addActionListener(e -> {
-           if (usernameTextField.getText().equals("AVERY") && passwordField.getText().equals("123")) {
+           if (usernameTextField.getText().equals("AVERY") && String.valueOf(passwordField.getPassword()).equals("123")) {
                JOptionPane.showMessageDialog(this, "Login Successful");
            } else {
                JOptionPane.showMessageDialog(this, "Incorrect Credentials.");
