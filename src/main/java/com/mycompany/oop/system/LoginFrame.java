@@ -20,10 +20,15 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import Modules.StringManager;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import org.bson.Document;
 /**
  *
  * @author avery
@@ -43,7 +48,9 @@ public class LoginFrame extends JFrame{
             UIManager.setLookAndFeel(new FlatMacLightLaf());
             UIManager.put("TextComponent.arc", 15);
             UIManager.put("Button.arc", 999);
-            UIManager.put("TextComponent.focusColor", Color.RED);
+            UIManager.put("Component.focusedBorderColor", new Color(201, 40, 89));
+            UIManager.put("Component.focusColor", new Color(201, 40, 89, 80));
+//            UIManager.put("Component.focusWidth", 0);
             
         } catch (UnsupportedLookAndFeelException e) {
             e.printStackTrace();
@@ -130,12 +137,28 @@ public class LoginFrame extends JFrame{
     
     private void eventHandlers() {
         loginButton.addActionListener(e -> {
-           if (usernameTextField.getText().equals("AVERY") && String.valueOf(passwordField.getPassword()).equals("123")) {
-               MainPage mp = new MainPage();
-               this.dispose();
-           } else {
-               JOptionPane.showMessageDialog(this, "Incorrect Credentials.");
-           }
+            String username = usernameTextField.getText();
+            String password = String.valueOf(passwordField.getPassword());
+            
+            try (MongoClient client = MongoClients.create("mongodb://localhost:27017")){
+                
+                //Attempt access to db
+                MongoDatabase db = client.getDatabase("authCredentials");
+                MongoCollection<Document> userCollection = db.getCollection("userlogin");
+                
+                Document query = new Document("username", username)
+                        .append("password", password);
+                
+                Document user = userCollection.find(query).first();
+                
+                if (user != null) {
+                    JOptionPane.showMessageDialog(this, "Login Successful");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Incorrect Credentials");
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
     }
     

@@ -40,8 +40,7 @@ public class SideBarButton extends JPanel {
     private void setPanel() {
         setLayout(null);
         setPreferredSize(new Dimension(230, 60));
-//        setBackground(new Color(224, 76, 121));
-        setBackground(new Color(199, 32, 74));
+        setBackground(null);
         setOpaque(false);
     }
     

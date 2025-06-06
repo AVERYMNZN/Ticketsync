@@ -43,15 +43,12 @@ public class SideBar extends ImagePanel{
         ticketSyncTitle = new JLabel(StringManager.get("app.topHint"));
         ticketSyncTitle.setFont(fontLoader.loadTitleFont(30f));
         ticketSyncTitle.setForeground(Color.WHITE);
-        
-        
-        
+            
         // Set the bounds
-        
-        
-        
+        ticketSyncTitle.setBounds(85, 50, 150, 30);
+             
         //Add components 
-        
+        add(ticketSyncTitle);
         
         
         revalidate();
