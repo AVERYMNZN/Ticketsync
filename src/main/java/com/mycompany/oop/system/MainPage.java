@@ -1,4 +1,5 @@
 package com.mycompany.oop.system;
+import ExtraComponents.AddMovieComponent;
 import ExtraComponents.SideBar;
 import ExtraComponents.SideBarButton;
 import Modules.FontLoader;
@@ -29,6 +30,7 @@ public class MainPage extends JFrame{
     SideBarButton moviesBtn, ordersBtn, scheduleBtn;
     JPanel hostPanel, moviesPanel, ordersPanel, schedulePanel;
     CardLayout cardLayout;
+    JButton searchButton, addMovieButton;
     
     public static void main(String[] args) {
         try {
@@ -134,7 +136,8 @@ public class MainPage extends JFrame{
        JPanel controlPanel = new JPanel();
        JPanel cardsPanel = new JPanel();
        JTextField searchBar = new JTextField();
-       JButton searchButton = new JButton("Search");
+       searchButton = new JButton("Search");
+       addMovieButton = new JButton("Add movie");
        
        controlPanel.setLayout(null);
        
@@ -146,6 +149,10 @@ public class MainPage extends JFrame{
        searchButton.setBackground(new Color(201, 40, 89));
        searchButton.setForeground(Color.WHITE);
        
+       addMovieButton.setFont(fontLoader.loadHintFont(14));
+       addMovieButton.setBackground(new Color(201, 40, 89));
+       addMovieButton.setForeground(Color.WHITE);       
+       
        controlPanel.setBounds(20, 20, 880, 50);
 //       controlPanel.setBackground(Color.BLUE);
        cardsPanel.setBounds(20, 80, 880, 710);
@@ -153,12 +160,14 @@ public class MainPage extends JFrame{
        searchBar.setBounds(5, 7, 300, 35);
        searchButton.setBounds(310, 8, 90, 33);
        
+       addMovieButton.setBounds(760, 8, 110, 33);
        
        moviesPanel.add(controlPanel);
        moviesPanel.add(cardsPanel);
        
        controlPanel.add(searchBar);
        controlPanel.add(searchButton);
+       controlPanel.add(addMovieButton);
     }
     
     private void eventHandlers() {
@@ -205,6 +214,10 @@ public class MainPage extends JFrame{
            public void mouseReleased(MouseEvent e) {
                scheduleBtn.setBackground(null);
            }
+        });
+        
+        addMovieButton.addActionListener(e -> {
+            AddMovieComponent addMovieComponent = new AddMovieComponent();
         });
     }
     
