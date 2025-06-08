@@ -38,7 +38,7 @@ TicketSync is a comprehensive movie theater management application that allows u
 
 ## 📁 Project Structure
 
-
+```
 src/main/java/
 ├── com/mycompany/oop/system/
 │   ├── LoginFrame.java          # Authentication interface
@@ -57,7 +57,7 @@ src/main/java/
     ├── BookMovieComponent.java  # Booking interface
     ├── AddMovieComponent.java   # Movie management
     └── SideBar.java             # Navigation sidebar
-
+```
 
 ## 🐛 Known Issues
 
