@@ -1,10 +1,8 @@
 package com.mycompany.oop.system;
 import ExtraComponents.AddMovieComponent;
 import ExtraComponents.CardComponent;
-import ExtraComponents.MovieScalableImage;
 import ExtraComponents.SideBar;
 import ExtraComponents.SideBarButton;
-import Modules.CardData;
 import Modules.FontLoader;
 import Modules.GridFSCardData;
 import Modules.StringManager;
@@ -19,12 +17,13 @@ import com.mongodb.client.gridfs.GridFSFindIterable;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -340,7 +339,16 @@ public class MainPage extends JFrame{
         
         addMovieButton.addActionListener(e -> {
             AddMovieComponent addMovieComponent = new AddMovieComponent();
+            addMovieComponent.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    System.out.println("window was closed");
+                }
+            });
         });
+        
+        
+        
     }
     
     private List<GridFSCardData> fetchCards() {
