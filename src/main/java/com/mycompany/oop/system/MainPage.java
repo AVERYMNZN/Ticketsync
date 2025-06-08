@@ -246,48 +246,73 @@ public class MainPage extends JFrame{
         });
         
         refreshButton.addActionListener(e -> {
-            try (MongoClient client = MongoClients.create("mongodb://localhost:27017")){
-                
-                //Access db
-                MongoDatabase movieDatabase = client.getDatabase("MovieImages");
-                
-                //Retrieve collection
-                GridFSBucket gridFSBucket = GridFSBuckets.create(movieDatabase);
-                
-                List<GridFSCardData> cardDataList = new ArrayList<>();
-                
-                GridFSFindIterable gridFSFiles = gridFSBucket.find();
-                
-                
-                for (GridFSFile gridFSFile : gridFSFiles) {
+            try (MongoClient client = MongoClients.create("mongodb://localhost:27017")) {
+
+            // Access db
+            MongoDatabase movieDatabase = client.getDatabase("MovieImages");
+
+            // Retrieve GridFS bucket
+            GridFSBucket gridFSBucket = GridFSBuckets.create(movieDatabase);
+
+            List<GridFSCardData> cardDataList = new ArrayList<>();
+
+            GridFSFindIterable gridFSFiles = gridFSBucket.find();
+
+            for (GridFSFile gridFSFile : gridFSFiles) {
                 try {
+                    System.out.println("Processing file: " + gridFSFile.getFilename());
+                    System.out.println("File size: " + gridFSFile.getLength() + " bytes");
+
                     // Get file metadata
                     Document metadata = gridFSFile.getMetadata();
                     String filename = gridFSFile.getFilename();
                     String contentType = metadata != null ? metadata.getString("contentType") : "image/jpeg";
 
-                    // Extract custom metadata (adjust field names based on your database structure)
+                    // Extract custom metadata
                     String title = metadata != null ? metadata.getString("title") : filename;
                     String description = metadata != null ? metadata.getString("description") : "";
-                    Double movieCostDouble = metadata != null ? metadata.getDouble("movieCost") : 0L;
-                    Long movieCost = movieCostDouble.longValue();
+
+                    // Fix the movieCost extraction
+                    Long movieCost = 0L;
+                    if (metadata != null) {
+                        Object costObj = metadata.get("movieCost");
+                        if (costObj instanceof Number) {
+                            movieCost = ((Number) costObj).longValue();
+                        }
+                    }
 
                     // Download the image data
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     gridFSBucket.downloadToStream(gridFSFile.getObjectId(), outputStream);
 
+                    byte[] imageBytes = outputStream.toByteArray();
+                    System.out.println("Downloaded " + imageBytes.length + " bytes");
+
                     // Convert byte array to BufferedImage
-                    ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+                    ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
                     BufferedImage image = ImageIO.read(inputStream);
+
+                    if (image != null) {
+                        System.out.println("Successfully created BufferedImage: " + image.getWidth() + "x" + image.getHeight());
+                    } else {
+                        System.out.println("Failed to create BufferedImage - ImageIO.read returned null");
+                        // Try to determine why
+                        System.out.println("Content type: " + contentType);
+                        System.out.println("First few bytes: ");
+                        for (int i = 0; i < Math.min(10, imageBytes.length); i++) {
+                            System.out.print(String.format("%02X ", imageBytes[i]));
+                        }
+                        System.out.println();
+                    }
 
                     // Create GridFSCardData object
                     GridFSCardData cardData = new GridFSCardData(
                         gridFSFile.getObjectId().toString(),
                         title,
                         description,
-                        image,
+                        image, // This might be null
                         contentType,
-                        movieCost != null ? movieCost : 0L
+                        movieCost
                     );
 
                     cardDataList.add(cardData);
@@ -299,15 +324,18 @@ public class MainPage extends JFrame{
                 } catch (Exception ex) {
                     System.err.println("Error processing GridFS file: " + gridFSFile.getFilename());
                     ex.printStackTrace();
-                    // Continue with next file instead of breaking the entire operation
                 }
             }
-           
-                updateCardsDisplay(cardDataList);
-                
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+
+            // Update the cards display
+            updateCardsDisplay(cardDataList);
+
+            System.out.println("Loaded " + cardDataList.size() + " movies from database");
+
+        } catch (Exception ex) {
+            System.err.println("Error connecting to MongoDB or retrieving data:");
+            ex.printStackTrace();
+        }
         });
         
         addMovieButton.addActionListener(e -> {
@@ -316,35 +344,28 @@ public class MainPage extends JFrame{
     }
     
         private void updateCardsDisplay(List<GridFSCardData> cardDataList) {
-        // You'll need to make cardsPanel a class field instead of local variable
-        // Add this as a class field: JPanel cardsPanel;
-
         // Clear existing components
         cardsPanel.removeAll();
 
-        // Set layout for cards - you can adjust this based on your preference
-        // Option 1: FlowLayout (cards flow from left to right, wrapping to next line)
-        cardsPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
-
-        // Option 2: GridLayout (fixed grid structure)
-        // int columns = 4; // Adjust based on your panel width
-        // int rows = (int) Math.ceil((double) cardDataList.size() / columns);
-        // cardsPanel.setLayout(new GridLayout(rows, columns, 10, 10));
+        // Set layout for cards with proper spacing
+        cardsPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 15));
 
         // Create CardComponents from GridFSCardData
         for (GridFSCardData cardData : cardDataList) {
-            // Create a CardComponent that accepts GridFSCardData
-            // You'll need to create this constructor or adapter
-            CardComponent cardComponent = new CardComponent(cardData);
-            cardsPanel.add(cardComponent);
+            try {
+                CardComponent cardComponent = new CardComponent(cardData);
+                cardsPanel.add(cardComponent);
+            } catch (Exception ex) {
+                System.err.println("Error creating card component for: " + cardData.getTitle());
+                ex.printStackTrace();
+            }
         }
-
-        // If you want scrolling capability, wrap cardsPanel in JScrollPane
-        // This should be done in initMoviesPanelComponents() method
 
         // Refresh the display
         cardsPanel.revalidate();
         cardsPanel.repaint();
+
+        System.out.println("Display updated with " + cardDataList.size() + " cards");
     }
     
     private void applyRoundedShape() {

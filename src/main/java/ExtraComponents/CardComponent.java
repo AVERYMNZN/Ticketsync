@@ -29,13 +29,35 @@ public class CardComponent extends JPanel{
     }
     
     private void initComponents(GridFSCardData data) {
+        // Debug: Check if data and image are not null
+        System.out.println("Creating CardComponent for: " + data.getTitle());
+        System.out.println("Image is null: " + (data.getImage() == null));
+        
+        if (data.getImage() != null) {
+            System.out.println("Image dimensions: " + data.getImage().getWidth() + "x" + data.getImage().getHeight());
+        }
+        
         // Attempts to create an image for the card component
         try {
-            MovieScalableImage scalableImg = new MovieScalableImage(data.getImage());
-            scalableImg.setPreferredSize(new Dimension(100, 100));
-            scalableImg.setBounds(10, 10, 150, 230);
-            add(scalableImg);
+            BufferedImage image = data.getImage();
+            
+            if (image != null) {
+                MovieScalableImage scalableImg = new MovieScalableImage(image);
+                scalableImg.setPreferredSize(new Dimension(100, 100));
+                scalableImg.setBounds(10, 10, 150, 230);
+                add(scalableImg);
+                System.out.println("Successfully added MovieScalableImage");
+            } else {
+                System.out.println("Image is null, cannot create MovieScalableImage");
+                // Add a placeholder panel to show something
+                JPanel placeholder = new JPanel();
+                placeholder.setBackground(Color.LIGHT_GRAY);
+                placeholder.setBounds(10, 10, 150, 230);
+                add(placeholder);
+            }
         } catch (Exception e) {
+            System.out.println("Exception creating MovieScalableImage: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
