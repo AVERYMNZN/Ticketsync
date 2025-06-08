@@ -2,15 +2,19 @@ package com.mycompany.oop.system;
 import ExtraComponents.AddMovieComponent;
 import ExtraComponents.BookMovieComponent;
 import ExtraComponents.CardComponent;
+import ExtraComponents.OrderCardComponent;
 import ExtraComponents.SideBar;
 import ExtraComponents.SideBarButton;
 import Modules.FontLoader;
 import Modules.GridFSCardData;
+import Modules.OrderData;
 import Modules.StringManager;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.formdev.flatlaf.util.SystemInfo;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSBuckets;
@@ -29,6 +33,7 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
@@ -112,7 +117,7 @@ public class MainPage extends JFrame{
 
         moviesBtn.setBounds(20, 200, 230, 60);
         ordersBtn.setBounds(20, 280, 230, 60);
-        scheduleBtn.setBounds(20, 360, 230, 60);
+//        scheduleBtn.setBounds(20, 360, 230, 60);
         
         sidebar.setBounds(0, 0, 270, 800);
         
@@ -204,7 +209,9 @@ public class MainPage extends JFrame{
     }
     
     private void initOrdersPanelComponents() {
+        ordersPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 15));
         
+        updateOrdersDisplay(fetchOrders());
     }
     
     private void eventHandlers() {
@@ -221,6 +228,7 @@ public class MainPage extends JFrame{
             public void mousePressed(MouseEvent e) {
                 cardLayout.show(hostPanel, "ordersPanel");
                 ordersBtn.setBackground(new Color(199, 32, 74));
+                updateOrdersDisplay(fetchOrders());
             }
         });
         
@@ -273,6 +281,33 @@ public class MainPage extends JFrame{
                 }
             });
         });
+        
+        
+    }
+    
+    private List<OrderData> fetchOrders() {
+        List<OrderData> orderList = new ArrayList<>();
+        try (MongoClient client = MongoClients.create("mongodb://localhost:27017")){
+            MongoDatabase orderDatabase = client.getDatabase("MovieBookings");
+            MongoCollection<Document> orderCollection = orderDatabase.getCollection("Orders");
+            
+            FindIterable<Document> documents = orderCollection.find();
+            
+            for (Document doc : documents) {
+                String movieTitle = doc.getString("movieTitle");
+                int ticketQuantity = doc.getInteger("ticketQuantity", 0);
+                long totalCost = doc.getLong("totalCost");
+                String dateTime = doc.get("dateTime").toString();// or parse as LocalDateTime if needed
+
+                 OrderData order = new OrderData(movieTitle, ticketQuantity, totalCost, dateTime);
+                orderList.add(order);
+            }
+           
+        } catch (Exception e) {
+        }
+        
+        
+        return orderList;
     }
     
     private List<GridFSCardData> fetchCards() {
@@ -366,6 +401,27 @@ public class MainPage extends JFrame{
         return null;
     }
     
+    private void updateOrdersDisplay(List<OrderData> orderList) {
+        if (orderList == null) return;
+
+        ordersPanel.removeAll();
+
+        for (OrderData order : orderList) {
+            try {
+                OrderCardComponent orderCard = new OrderCardComponent(order);
+                ordersPanel.add(orderCard);
+            } catch (Exception ex) {
+                System.err.println("Error creating order card for: " + order.getMovieTitle());
+                ex.printStackTrace();
+            }
+        }
+
+        ordersPanel.revalidate();
+        ordersPanel.repaint();
+
+        System.out.println("Displayed " + orderList.size() + " orders.");
+    }
+    
     private void updateCardsDisplay(List<GridFSCardData> cardDataList) {
         // Clear existing components
         cardsPanel.removeAll();
@@ -380,8 +436,34 @@ public class MainPage extends JFrame{
                 CardComponent cardComponent = new CardComponent(cardData);
                 
                 cardComponent.getBookTicketBtn().addActionListener(e -> {
-                    BookMovieComponent bookMovieComponent = new BookMovieComponent(cardData.getTitle());
+                    System.out.println("The COST IS " + String.valueOf(cardData.getMovieCost()));
+                    BookMovieComponent bookMovieComponent = new BookMovieComponent(cardData.getTitle(), cardData.getMovieCost());
                     System.out.println("You Clicked Me - " + cardData.getTitle());
+                    revalidate();
+                    repaint();
+                });
+                
+                cardComponent.getDelCardBtn().addActionListener(e -> {
+                    try (MongoClient client = MongoClients.create("mongodb://localhost:27017")) {
+                        MongoDatabase db = client.getDatabase("MovieImages");
+                        GridFSBucket bucket = GridFSBuckets.create(db);
+
+                        // Find the file by metadata movieTitle
+                        GridFSFindIterable files = bucket.find(new Document("metadata.movieTitle", cardData.getTitle()));
+
+                        for (GridFSFile file : files) {
+                            bucket.delete(file.getObjectId());
+                            System.out.println("Deleted file: " + file.getFilename() + " with title: " + cardData.getTitle());
+                        }
+
+                        // Refresh the UI
+                        updateCardsDisplay(fetchCards());
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        System.err.println("Failed to delete file with title: " + cardData.getTitle());
+                    }
+                    System.out.println(cardData.getTitle() + "has been deleted");
+                    
                     revalidate();
                     repaint();
                 });
@@ -401,6 +483,7 @@ public class MainPage extends JFrame{
 
         System.out.println("Display updated with " + cardDataList.size() + " cards");
     }
+    
     
     private void applyRoundedShape() {
         Timer timer = new Timer(100, new ActionListener() {
