@@ -9,8 +9,10 @@ import Modules.GridFSCardData;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 /**
  *
@@ -77,12 +79,18 @@ public class CardComponent extends JPanel{
 //        System.out.println("title is " + data.getTitle());
         movieTitleLabel = new JLabel(data.getTitle());
         movieCostLabel = new JLabel(String.valueOf(data.getMovieCost()));
-//        movieDescriptionLabel = new JLabel(data.getDescription());
-
+        movieDescriptionLabel = new JLabel("<html><p style='overflow-wrap: break-word; word-wrap: break-word;'>"
+                                       + data.getDescription().trim()
+                                       + "</p></html>");
+        
+        
         movieTitleLabel.setFont(fontLoader.loadTextFontBold(14f));
+        movieDescriptionLabel.setFont(fontLoader.loadTextFont(12f));
         
         movieTitleLabel.setBounds(15, 110, 200, 20);
+        movieDescriptionLabel.setBounds(15, 130, 150, 70);
         
         add(movieTitleLabel);
+        add(movieDescriptionLabel);
     }
 }

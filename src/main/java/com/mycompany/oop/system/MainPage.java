@@ -269,8 +269,8 @@ public class MainPage extends JFrame{
                     String contentType = metadata != null ? metadata.getString("contentType") : "image/jpeg";
 
                     // Extract custom metadata
-                    String title = metadata != null ? metadata.getString("title") : filename;
-                    String description = metadata != null ? metadata.getString("description") : "";
+                    String title = metadata != null ? metadata.getString("movieTitle") : filename;
+                    String description = metadata != null ? metadata.getString("movieDescription") : "";
 
                     // Fix the movieCost extraction
                     Long movieCost = 0L;
@@ -366,7 +366,8 @@ public class MainPage extends JFrame{
 
                     // Extract custom metadata
                     String title = metadata != null ? metadata.getString("movieTitle") : filename;
-                    String description = metadata != null ? metadata.getString("description") : "";
+                    String description = metadata != null ? metadata.getString("movieDescription") : "";
+                    System.out.println("description is " + description);
 
                     // Fix the movieCost extraction
                     Long movieCost = 0L;

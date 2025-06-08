@@ -166,6 +166,7 @@ public class AddMovieComponent extends JFrame {
             // Validate inputs
             String title = movieTitleField.getText().trim();
             String description = descriptionArea.getText().trim();
+            String cleanedDescription = description.replaceAll("\\s+", " ");
             String priceText = movieCostField.getText().trim();
             
             if (title.isEmpty()) {
@@ -184,7 +185,7 @@ public class AddMovieComponent extends JFrame {
             }
             
             double price = Double.parseDouble(priceText);
-            uploadToDB(savedFile, title, description, price);
+            uploadToDB(savedFile, title, cleanedDescription, price);
             
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Please enter a valid price!", "Error", JOptionPane.ERROR_MESSAGE);
