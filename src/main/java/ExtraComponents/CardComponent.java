@@ -21,7 +21,7 @@ public class CardComponent extends JPanel{
     
     public CardComponent(GridFSCardData data) {
         setPreferredSize(new Dimension(185,240));
-        setBackground(Color.GRAY);
+        setBackground(new Color(204, 196, 188));
         
         putClientProperty("FlatLaf.style", "arc: 15");
         

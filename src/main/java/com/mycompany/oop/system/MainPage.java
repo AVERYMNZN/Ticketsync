@@ -51,7 +51,6 @@ public class MainPage extends JFrame{
     JPanel hostPanel, moviesPanel, ordersPanel, schedulePanel, cardsPanel;
     CardLayout cardLayout;
     JButton searchButton, addMovieButton, refreshButton;
-    
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(new FlatMacLightLaf());
@@ -196,6 +195,7 @@ public class MainPage extends JFrame{
        controlPanel.add(refreshButton);
        controlPanel.add(addMovieButton);
        
+       updateCardsDisplay(fetchCards());
        
     }
     
@@ -343,7 +343,95 @@ public class MainPage extends JFrame{
         });
     }
     
-        private void updateCardsDisplay(List<GridFSCardData> cardDataList) {
+    private List<GridFSCardData> fetchCards() {
+        try (MongoClient client = MongoClients.create("mongodb://localhost:27017")){
+            MongoDatabase movieDatabase = client.getDatabase("MovieImages");
+
+            // Retrieve GridFS bucket
+            GridFSBucket gridFSBucket = GridFSBuckets.create(movieDatabase);
+
+            List<GridFSCardData> newCardsDataList = new ArrayList<>();
+
+            GridFSFindIterable gridFSFiles = gridFSBucket.find();
+            
+            for (GridFSFile gridFSFile : gridFSFiles) {
+                try {
+                    System.out.println("Processing file: " + gridFSFile.getFilename());
+                    System.out.println("File size: " + gridFSFile.getLength() + " bytes");
+
+                    // Get file metadata
+                    Document metadata = gridFSFile.getMetadata();
+                    String filename = gridFSFile.getFilename();
+                    String contentType = metadata != null ? metadata.getString("contentType") : "image/jpeg";
+
+                    // Extract custom metadata
+                    String title = metadata != null ? metadata.getString("title") : filename;
+                    String description = metadata != null ? metadata.getString("description") : "";
+
+                    // Fix the movieCost extraction
+                    Long movieCost = 0L;
+                    if (metadata != null) {
+                        Object costObj = metadata.get("movieCost");
+                        if (costObj instanceof Number) {
+                            movieCost = ((Number) costObj).longValue();
+                        }
+                    }
+
+                    // Download the image data
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    gridFSBucket.downloadToStream(gridFSFile.getObjectId(), outputStream);
+
+                    byte[] imageBytes = outputStream.toByteArray();
+                    System.out.println("Downloaded " + imageBytes.length + " bytes");
+
+                    // Convert byte array to BufferedImage
+                    ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
+                    BufferedImage image = ImageIO.read(inputStream);
+
+                    if (image != null) {
+                        System.out.println("Successfully created BufferedImage: " + image.getWidth() + "x" + image.getHeight());
+                    } else {
+                        System.out.println("Failed to create BufferedImage - ImageIO.read returned null");
+                        // Try to determine why
+                        System.out.println("Content type: " + contentType);
+                        System.out.println("First few bytes: ");
+                        for (int i = 0; i < Math.min(10, imageBytes.length); i++) {
+                            System.out.print(String.format("%02X ", imageBytes[i]));
+                        }
+                        System.out.println();
+                    }
+
+                    // Create GridFSCardData object
+                    GridFSCardData cardData = new GridFSCardData(
+                        gridFSFile.getObjectId().toString(),
+                        title,
+                        description,
+                        image, // This might be null
+                        contentType,
+                        movieCost
+                    );
+
+                    newCardsDataList.add(cardData);
+
+                    // Close streams
+                    outputStream.close();
+                    inputStream.close();
+
+                } catch (Exception ex) {
+                    System.err.println("Error processing GridFS file: " + gridFSFile.getFilename());
+                    ex.printStackTrace();
+                }
+            }
+            
+            return newCardsDataList;
+        } catch (Exception e) {
+                e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
+    private void updateCardsDisplay(List<GridFSCardData> cardDataList) {
         // Clear existing components
         cardsPanel.removeAll();
 
