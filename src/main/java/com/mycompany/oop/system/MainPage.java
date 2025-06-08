@@ -1,5 +1,6 @@
 package com.mycompany.oop.system;
 import ExtraComponents.AddMovieComponent;
+import ExtraComponents.BookMovieComponent;
 import ExtraComponents.CardComponent;
 import ExtraComponents.SideBar;
 import ExtraComponents.SideBarButton;
@@ -50,6 +51,9 @@ public class MainPage extends JFrame{
     JPanel hostPanel, moviesPanel, ordersPanel, schedulePanel, cardsPanel;
     CardLayout cardLayout;
     JButton searchButton, addMovieButton, refreshButton;
+    
+    private List<CardComponent> displayedCards = new ArrayList<>();
+    
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(new FlatMacLightLaf());
@@ -342,13 +346,19 @@ public class MainPage extends JFrame{
             addMovieComponent.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {
-                    System.out.println("window was closed");
+                    updateCardsDisplay(fetchCards());
                 }
             });
         });
         
-        
-        
+        for (CardComponent card : displayedCards) {
+            card.getBookTicketBtn().addActionListener(e -> {
+                BookMovieComponent bookMovieComponent = new BookMovieComponent();
+                System.out.println("You Clicked Me");
+                revalidate();
+                repaint();
+            });
+        }
     }
     
     private List<GridFSCardData> fetchCards() {
@@ -445,6 +455,7 @@ public class MainPage extends JFrame{
     private void updateCardsDisplay(List<GridFSCardData> cardDataList) {
         // Clear existing components
         cardsPanel.removeAll();
+        displayedCards.clear();
 
         // Set layout for cards with proper spacing
         cardsPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 15));
@@ -453,6 +464,9 @@ public class MainPage extends JFrame{
         for (GridFSCardData cardData : cardDataList) {
             try {
                 CardComponent cardComponent = new CardComponent(cardData);
+                
+                displayedCards.add(cardComponent);
+                
                 cardsPanel.add(cardComponent);
             } catch (Exception ex) {
                 System.err.println("Error creating card component for: " + cardData.getTitle());

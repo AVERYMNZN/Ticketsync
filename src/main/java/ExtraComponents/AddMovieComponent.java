@@ -193,6 +193,7 @@ public class AddMovieComponent extends JFrame {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
+        this.dispose();
     });
     }
     
