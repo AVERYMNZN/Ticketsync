@@ -129,6 +129,7 @@ public class MainPage extends JFrame{
         moviesPanel = new JPanel();
         initMoviesPanelComponents();
         ordersPanel = new JPanel();
+        initOrdersPanelComponents();
         schedulePanel = new JPanel();
         
         hostPanel.setBounds(270, 0, 930, 800);
@@ -202,6 +203,10 @@ public class MainPage extends JFrame{
        
     }
     
+    private void initOrdersPanelComponents() {
+        
+    }
+    
     private void eventHandlers() {
         moviesBtn.addMouseListener(new MouseAdapter() {
             @Override
@@ -249,96 +254,14 @@ public class MainPage extends JFrame{
         });
         
         refreshButton.addActionListener(e -> {
-            try (MongoClient client = MongoClients.create("mongodb://localhost:27017")) {
-
-            // Access db
-            MongoDatabase movieDatabase = client.getDatabase("MovieImages");
-
-            // Retrieve GridFS bucket
-            GridFSBucket gridFSBucket = GridFSBuckets.create(movieDatabase);
-
-            List<GridFSCardData> cardDataList = new ArrayList<>();
-
-            GridFSFindIterable gridFSFiles = gridFSBucket.find();
-
-            for (GridFSFile gridFSFile : gridFSFiles) {
-                try {
-                    System.out.println("Processing file: " + gridFSFile.getFilename());
-                    System.out.println("File size: " + gridFSFile.getLength() + " bytes");
-
-                    // Get file metadata
-                    Document metadata = gridFSFile.getMetadata();
-                    String filename = gridFSFile.getFilename();
-                    String contentType = metadata != null ? metadata.getString("contentType") : "image/jpeg";
-
-                    // Extract custom metadata
-                    String title = metadata != null ? metadata.getString("movieTitle") : filename;
-                    String description = metadata != null ? metadata.getString("movieDescription") : "";
-
-                    // Fix the movieCost extraction
-                    Long movieCost = 0L;
-                    if (metadata != null) {
-                        Object costObj = metadata.get("movieCost");
-                        if (costObj instanceof Number) {
-                            movieCost = ((Number) costObj).longValue();
-                        }
-                    }
-
-                    // Download the image data
-                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    gridFSBucket.downloadToStream(gridFSFile.getObjectId(), outputStream);
-
-                    byte[] imageBytes = outputStream.toByteArray();
-                    System.out.println("Downloaded " + imageBytes.length + " bytes");
-
-                    // Convert byte array to BufferedImage
-                    ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
-                    BufferedImage image = ImageIO.read(inputStream);
-
-                    if (image != null) {
-                        System.out.println("Successfully created BufferedImage: " + image.getWidth() + "x" + image.getHeight());
-                    } else {
-                        System.out.println("Failed to create BufferedImage - ImageIO.read returned null");
-                        // Try to determine why
-                        System.out.println("Content type: " + contentType);
-                        System.out.println("First few bytes: ");
-                        for (int i = 0; i < Math.min(10, imageBytes.length); i++) {
-                            System.out.print(String.format("%02X ", imageBytes[i]));
-                        }
-                        System.out.println();
-                    }
-
-                    // Create GridFSCardData object
-                    GridFSCardData cardData = new GridFSCardData(
-                        gridFSFile.getObjectId().toString(),
-                        title,
-                        description,
-                        image, // This might be null
-                        contentType,
-                        movieCost
-                    );
-
-                    cardDataList.add(cardData);
-
-                    // Close streams
-                    outputStream.close();
-                    inputStream.close();
-
-                } catch (Exception ex) {
-                    System.err.println("Error processing GridFS file: " + gridFSFile.getFilename());
-                    ex.printStackTrace();
-                }
-            }
+            List<GridFSCardData> cardDataList = fetchCards();
 
             // Update the cards display
             updateCardsDisplay(cardDataList);
 
             System.out.println("Loaded " + cardDataList.size() + " movies from database");
 
-        } catch (Exception ex) {
-            System.err.println("Error connecting to MongoDB or retrieving data:");
-            ex.printStackTrace();
-        }
+        
         });
         
         addMovieButton.addActionListener(e -> {
@@ -350,15 +273,6 @@ public class MainPage extends JFrame{
                 }
             });
         });
-        
-        for (CardComponent card : displayedCards) {
-            card.getBookTicketBtn().addActionListener(e -> {
-                BookMovieComponent bookMovieComponent = new BookMovieComponent();
-                System.out.println("You Clicked Me");
-                revalidate();
-                repaint();
-            });
-        }
     }
     
     private List<GridFSCardData> fetchCards() {
@@ -464,6 +378,13 @@ public class MainPage extends JFrame{
         for (GridFSCardData cardData : cardDataList) {
             try {
                 CardComponent cardComponent = new CardComponent(cardData);
+                
+                cardComponent.getBookTicketBtn().addActionListener(e -> {
+                    BookMovieComponent bookMovieComponent = new BookMovieComponent(cardData.getTitle());
+                    System.out.println("You Clicked Me - " + cardData.getTitle());
+                    revalidate();
+                    repaint();
+                });
                 
                 displayedCards.add(cardComponent);
                 
