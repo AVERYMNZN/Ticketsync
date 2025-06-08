@@ -1,6 +1,7 @@
 package com.mycompany.oop.system;
 import ExtraComponents.AddMovieComponent;
 import ExtraComponents.CardComponent;
+import ExtraComponents.MovieScalableImage;
 import ExtraComponents.SideBar;
 import ExtraComponents.SideBarButton;
 import Modules.CardData;
@@ -14,15 +15,23 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSBuckets;
+import com.mongodb.client.gridfs.GridFSFindIterable;
+import com.mongodb.client.gridfs.model.GridFSFile;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -31,6 +40,7 @@ import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import org.bson.Document;
 
 public class MainPage extends JFrame{
     
@@ -38,7 +48,7 @@ public class MainPage extends JFrame{
     
     JLabel ticketSyncSidebarTitle;
     SideBarButton moviesBtn, ordersBtn, scheduleBtn;
-    JPanel hostPanel, moviesPanel, ordersPanel, schedulePanel;
+    JPanel hostPanel, moviesPanel, ordersPanel, schedulePanel, cardsPanel;
     CardLayout cardLayout;
     JButton searchButton, addMovieButton, refreshButton;
     
@@ -142,13 +152,15 @@ public class MainPage extends JFrame{
        moviesPanel.setLayout(null);
        
        JPanel controlPanel = new JPanel();
-       JPanel cardsPanel = new JPanel();
+       cardsPanel = new JPanel();
        JTextField searchBar = new JTextField();
        searchButton = new JButton("Search");
        refreshButton = new JButton("Refresh");
        addMovieButton = new JButton("Add movie");
        
        controlPanel.setLayout(null);
+       
+       cardsPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 15));
        
        controlPanel.putClientProperty("FlatLaf.style", "arc: 15");
        cardsPanel.putClientProperty("FlatLaf.style", "arc: 15");
@@ -247,7 +259,57 @@ public class MainPage extends JFrame{
                 
                 List<GridFSCardData> cardDataList = new ArrayList<>();
                 
+                GridFSFindIterable gridFSFiles = gridFSBucket.find();
                 
+                
+                for (GridFSFile gridFSFile : gridFSFiles) {
+                try {
+                    // Get file metadata
+                    Document metadata = gridFSFile.getMetadata();
+                    String filename = gridFSFile.getFilename();
+                    String contentType = metadata != null ? metadata.getString("contentType") : "image/jpeg";
+
+                    // Extract custom metadata (adjust field names based on your database structure)
+                    String title = metadata != null ? metadata.getString("title") : filename;
+                    String description = metadata != null ? metadata.getString("description") : "";
+                    Long movieCost = metadata != null ? metadata.getLong("movieCost") : 0L;
+                    Integer width = metadata != null ? metadata.getInteger("width") : 185;
+                    Integer height = metadata != null ? metadata.getInteger("height") : 240;
+
+                    // Download the image data
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    gridFSBucket.downloadToStream(gridFSFile.getObjectId(), outputStream);
+
+                    // Convert byte array to BufferedImage
+                    ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+                    BufferedImage image = ImageIO.read(inputStream);
+
+                    // Create GridFSCardData object
+                    GridFSCardData cardData = new GridFSCardData(
+                        gridFSFile.getObjectId().toString(),
+                        title,
+                        description,
+                        image,
+                        width != null ? width : 185,
+                        height != null ? height : 240,
+                        contentType,
+                        movieCost != null ? movieCost : 0L
+                    );
+
+                    cardDataList.add(cardData);
+
+                    // Close streams
+                    outputStream.close();
+                    inputStream.close();
+
+                } catch (Exception ex) {
+                    System.err.println("Error processing GridFS file: " + gridFSFile.getFilename());
+                    ex.printStackTrace();
+                    // Continue with next file instead of breaking the entire operation
+                }
+            }
+           
+                updateCardsDisplay(cardDataList);
                 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -257,6 +319,38 @@ public class MainPage extends JFrame{
         addMovieButton.addActionListener(e -> {
             AddMovieComponent addMovieComponent = new AddMovieComponent();
         });
+    }
+    
+        private void updateCardsDisplay(List<GridFSCardData> cardDataList) {
+        // You'll need to make cardsPanel a class field instead of local variable
+        // Add this as a class field: JPanel cardsPanel;
+
+        // Clear existing components
+        cardsPanel.removeAll();
+
+        // Set layout for cards - you can adjust this based on your preference
+        // Option 1: FlowLayout (cards flow from left to right, wrapping to next line)
+        cardsPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+
+        // Option 2: GridLayout (fixed grid structure)
+        // int columns = 4; // Adjust based on your panel width
+        // int rows = (int) Math.ceil((double) cardDataList.size() / columns);
+        // cardsPanel.setLayout(new GridLayout(rows, columns, 10, 10));
+
+        // Create CardComponents from GridFSCardData
+        for (GridFSCardData cardData : cardDataList) {
+            // Create a CardComponent that accepts GridFSCardData
+            // You'll need to create this constructor or adapter
+            CardComponentFromGridFS cardComponent = new CardComponentFromGridFS(cardData);
+            cardsPanel.add(cardComponent);
+        }
+
+        // If you want scrolling capability, wrap cardsPanel in JScrollPane
+        // This should be done in initMoviesPanelComponents() method
+
+        // Refresh the display
+        cardsPanel.revalidate();
+        cardsPanel.repaint();
     }
     
     private void applyRoundedShape() {
@@ -278,5 +372,33 @@ public class MainPage extends JFrame{
     public void setSize(int width, int height) {
         super.setSize(width, height);
         applyRoundedShape();
+    }
+    
+}
+
+class CardComponentFromGridFS extends JPanel {
+    
+    public CardComponentFromGridFS(GridFSCardData data) {
+        setPreferredSize(new Dimension(185, 240));
+        setBackground(Color.GRAY);
+        
+        putClientProperty("FlatLaf.style", "arc: 15");
+        
+        initComponents(data);
+    }
+    
+    private void initComponents(GridFSCardData data) {
+        // Create scalable image component directly from BufferedImage
+        if (data.getImage() != null) {
+            MovieScalableImage scalableImg = new MovieScalableImage(data.getImage());
+            scalableImg.setPreferredSize(new Dimension(data.getWidth(), data.getHeight()));
+            scalableImg.setBounds(10, 10, 150, 230);
+            add(scalableImg);
+        }
+        
+        // You can add additional components here like title labels, etc.
+        // JLabel titleLabel = new JLabel(data.getTitle());
+        // titleLabel.setBounds(10, 200, 165, 20);
+        // add(titleLabel);
     }
 }
