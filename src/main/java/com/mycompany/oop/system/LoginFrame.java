@@ -89,7 +89,7 @@ public class LoginFrame extends JFrame{
         passwordLabel.setFont(fontLoader.loadHintFont(14f));
         loginButton.setFont(fontLoader.loadButtonFont(18f));
         
-        usernameTextField.setFont(fontLoader.loadTextfieldFont(12f));
+        usernameTextField.setFont(fontLoader.loadTextFont(12f));
         
         
         topHint.setForeground(new Color(201, 40, 89));

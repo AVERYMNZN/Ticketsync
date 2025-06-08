@@ -5,6 +5,7 @@
 package ExtraComponents;
 
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
@@ -12,6 +13,7 @@ public class MovieScalableImage extends JPanel {
     private BufferedImage image;
     private double maxScale = 1.0; // Only scale down, never up
     private double coverAspectRatio = 2.0 / 3.0; // Standard movie poster aspect ratio (width/height)
+    private int cornerRadius = 10; // Default corner radius
     
     public MovieScalableImage(BufferedImage image) {
         this.image = image;
@@ -36,6 +38,30 @@ public class MovieScalableImage extends JPanel {
         setOpaque(false);
     }
     
+    // Constructor with custom aspect ratio and corner radius
+    public MovieScalableImage(BufferedImage image, double aspectRatio, int cornerRadius) {
+        this.image = image;
+        this.coverAspectRatio = aspectRatio;
+        this.cornerRadius = cornerRadius;
+        if (image != null) {
+            int preferredHeight = 300; // Default height
+            int preferredWidth = (int) (preferredHeight * coverAspectRatio);
+            setPreferredSize(new Dimension(preferredWidth, preferredHeight));
+        }
+        setOpaque(false);
+    }
+    
+    // Method to update the corner radius
+    public void setCornerRadius(int radius) {
+        this.cornerRadius = radius;
+        repaint();
+    }
+    
+    // Method to get current corner radius
+    public int getCornerRadius() {
+        return cornerRadius;
+    }
+    
     // Method to update the image if needed
     public void setImage(BufferedImage newImage) {
         this.image = newImage;
@@ -55,7 +81,7 @@ public class MovieScalableImage extends JPanel {
         if (image != null) {
             Graphics2D g2d = (Graphics2D) g.create();
             
-            // Enable smooth scaling
+            // Enable smooth scaling and antialiasing
             g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 
                                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, 
@@ -65,6 +91,11 @@ public class MovieScalableImage extends JPanel {
             
             int panelWidth = getWidth();
             int panelHeight = getHeight();
+            
+            // Create rounded rectangle clip
+            RoundRectangle2D roundedClip = new RoundRectangle2D.Float(
+                0, 0, panelWidth, panelHeight, cornerRadius, cornerRadius);
+            g2d.setClip(roundedClip);
             
             // Calculate the target dimensions based on panel's aspect ratio
             double panelAspectRatio = (double) panelWidth / panelHeight;
@@ -104,7 +135,7 @@ public class MovieScalableImage extends JPanel {
                 cropY = (image.getHeight() - cropHeight) / 2;
             }
             
-            // Draw the cropped and scaled image
+            // Draw the cropped and scaled image (will be clipped to rounded rectangle)
             g2d.drawImage(image, 
                          0, 0, panelWidth, panelHeight,  // destination
                          cropX, cropY, cropX + cropWidth, cropY + cropHeight,  // source crop area
@@ -112,20 +143,33 @@ public class MovieScalableImage extends JPanel {
             
             g2d.dispose();
         } else {
-            // Draw placeholder if no image
-            g.setColor(Color.LIGHT_GRAY);
-            g.fillRect(0, 0, getWidth(), getHeight());
-            g.setColor(Color.DARK_GRAY);
-            g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+            // Draw rounded placeholder if no image
+            Graphics2D g2d = (Graphics2D) g.create();
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            // Create rounded rectangle for placeholder
+            RoundRectangle2D roundedRect = new RoundRectangle2D.Float(
+                0, 0, getWidth(), getHeight(), cornerRadius, cornerRadius);
+            
+            // Fill with placeholder color
+            g2d.setColor(Color.LIGHT_GRAY);
+            g2d.fill(roundedRect);
+            
+            // Draw border
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.draw(roundedRect);
             
             // Draw "No Image" text
-            FontMetrics fm = g.getFontMetrics();
+            g2d.setColor(Color.DARK_GRAY);
+            FontMetrics fm = g2d.getFontMetrics();
             String text = "No Image";
             int textWidth = fm.stringWidth(text);
             int textHeight = fm.getHeight();
-            g.drawString(text, 
+            g2d.drawString(text, 
                         (getWidth() - textWidth) / 2, 
                         (getHeight() + textHeight) / 2 - fm.getDescent());
+            
+            g2d.dispose();
         }
     }
     
@@ -145,16 +189,29 @@ public class MovieScalableImage extends JPanel {
         return Math.abs(imageAspectRatio - panelAspectRatio) > 0.01;
     }
     
-    // Static method to create common movie poster ratios
+    // Static method to create common movie poster ratios with rounded corners
     public static MovieScalableImage createMoviePoster(BufferedImage image) {
-        return new MovieScalableImage(image, 2.0 / 3.0); // Standard movie poster
+        return new MovieScalableImage(image, 2.0 / 3.0, 10); // Standard movie poster with 10px radius
     }
     
     public static MovieScalableImage createSquareCover(BufferedImage image) {
-        return new MovieScalableImage(image, 1.0); // Square aspect ratio
+        return new MovieScalableImage(image, 1.0, 10); // Square aspect ratio with 10px radius
     }
     
     public static MovieScalableImage createWideCover(BufferedImage image) {
-        return new MovieScalableImage(image, 16.0 / 9.0); // Widescreen aspect ratio
+        return new MovieScalableImage(image, 16.0 / 9.0, 10); // Widescreen aspect ratio with 10px radius
+    }
+    
+    // New static methods with custom corner radius
+    public static MovieScalableImage createMoviePoster(BufferedImage image, int cornerRadius) {
+        return new MovieScalableImage(image, 2.0 / 3.0, cornerRadius);
+    }
+    
+    public static MovieScalableImage createSquareCover(BufferedImage image, int cornerRadius) {
+        return new MovieScalableImage(image, 1.0, cornerRadius);
+    }
+    
+    public static MovieScalableImage createWideCover(BufferedImage image, int cornerRadius) {
+        return new MovieScalableImage(image, 16.0 / 9.0, cornerRadius);
     }
 }

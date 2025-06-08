@@ -13,12 +13,12 @@ import java.io.InputStream;
  * @author avery
  */
 public class FontLoader {
-    private Font loadFont(String path, float size) {
+    private Font loadFont(String path, float size, int style) {
         try (InputStream fontStream = getClass().getClassLoader().getResourceAsStream(path)) {
             if (fontStream == null) {
                 throw new IOException("Font not found: " + path);
             }
-            Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(size);
+            Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(style, size);
             System.out.println("Loaded font: " + font.getFontName() + " size " + font.getSize2D());
             return font;
             
@@ -29,23 +29,27 @@ public class FontLoader {
     }
     
     public Font loadHintFont(float size) {
-        return loadFont("fonts/Qanelas-Medium.ttf", size);
+        return loadFont("fonts/Qanelas-Medium.ttf", size, Font.PLAIN);
     }
 
     public Font loadTitleFont(float size) {
         
-        return loadFont("fonts/Qanelas-ExtraBold.otf", size);
+        return loadFont("fonts/Qanelas-ExtraBold.otf", size, Font.PLAIN);
     }
     
     public Font loadButtonFont(float size) {
-        return loadFont("fonts/Qanelas-Bold.ttf", size);
+        return loadFont("fonts/Qanelas-Bold.ttf", size, Font.PLAIN);
     }
     
-    public Font loadTextfieldFont(float size) {
-        return loadFont("fonts/Roboto.ttf", size);
+    public Font loadTextFont(float size) {
+        return loadFont("fonts/Roboto.ttf", size, Font.PLAIN);
     }
 
+    public Font loadTextFontBold(float size) {
+        return loadFont("fonts/Roboto.ttf", size, Font.BOLD);
+    }
+    
     public Font loadCustomFont(String path, float size) {
-        return loadFont(path, size);
+        return loadFont(path, size, Font.PLAIN);
     }
 }

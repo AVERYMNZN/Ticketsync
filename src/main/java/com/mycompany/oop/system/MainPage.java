@@ -365,7 +365,7 @@ public class MainPage extends JFrame{
                     String contentType = metadata != null ? metadata.getString("contentType") : "image/jpeg";
 
                     // Extract custom metadata
-                    String title = metadata != null ? metadata.getString("title") : filename;
+                    String title = metadata != null ? metadata.getString("movieTitle") : filename;
                     String description = metadata != null ? metadata.getString("description") : "";
 
                     // Fix the movieCost extraction
@@ -400,6 +400,8 @@ public class MainPage extends JFrame{
                         }
                         System.out.println();
                     }
+                    
+                    System.out.println("CURRENTLY CREATING " + title);
 
                     // Create GridFSCardData object
                     GridFSCardData cardData = new GridFSCardData(
