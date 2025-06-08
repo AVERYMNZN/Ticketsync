@@ -196,10 +196,7 @@ public class MainPage extends JFrame{
        controlPanel.add(refreshButton);
        controlPanel.add(addMovieButton);
        
-       //Cards
-       CardComponent cc = new CardComponent(new CardData("src/main/resources/cardBg.jpg", 100, 100, "Jwick", "desc"));
-       cc.setBounds(10, 10, 185, 240);
-       cardsPanel.add(cc);
+       
     }
     
     private void eventHandlers() {
@@ -272,9 +269,8 @@ public class MainPage extends JFrame{
                     // Extract custom metadata (adjust field names based on your database structure)
                     String title = metadata != null ? metadata.getString("title") : filename;
                     String description = metadata != null ? metadata.getString("description") : "";
-                    Long movieCost = metadata != null ? metadata.getLong("movieCost") : 0L;
-                    Integer width = metadata != null ? metadata.getInteger("width") : 185;
-                    Integer height = metadata != null ? metadata.getInteger("height") : 240;
+                    Double movieCostDouble = metadata != null ? metadata.getDouble("movieCost") : 0L;
+                    Long movieCost = movieCostDouble.longValue();
 
                     // Download the image data
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -290,8 +286,6 @@ public class MainPage extends JFrame{
                         title,
                         description,
                         image,
-                        width != null ? width : 185,
-                        height != null ? height : 240,
                         contentType,
                         movieCost != null ? movieCost : 0L
                     );
@@ -341,7 +335,7 @@ public class MainPage extends JFrame{
         for (GridFSCardData cardData : cardDataList) {
             // Create a CardComponent that accepts GridFSCardData
             // You'll need to create this constructor or adapter
-            CardComponentFromGridFS cardComponent = new CardComponentFromGridFS(cardData);
+            CardComponent cardComponent = new CardComponent(cardData);
             cardsPanel.add(cardComponent);
         }
 
@@ -376,29 +370,3 @@ public class MainPage extends JFrame{
     
 }
 
-class CardComponentFromGridFS extends JPanel {
-    
-    public CardComponentFromGridFS(GridFSCardData data) {
-        setPreferredSize(new Dimension(185, 240));
-        setBackground(Color.GRAY);
-        
-        putClientProperty("FlatLaf.style", "arc: 15");
-        
-        initComponents(data);
-    }
-    
-    private void initComponents(GridFSCardData data) {
-        // Create scalable image component directly from BufferedImage
-        if (data.getImage() != null) {
-            MovieScalableImage scalableImg = new MovieScalableImage(data.getImage());
-            scalableImg.setPreferredSize(new Dimension(data.getWidth(), data.getHeight()));
-            scalableImg.setBounds(10, 10, 150, 230);
-            add(scalableImg);
-        }
-        
-        // You can add additional components here like title labels, etc.
-        // JLabel titleLabel = new JLabel(data.getTitle());
-        // titleLabel.setBounds(10, 200, 165, 20);
-        // add(titleLabel);
-    }
-}

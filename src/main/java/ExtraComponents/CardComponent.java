@@ -5,6 +5,7 @@
 package ExtraComponents;
 
 import Modules.CardData;
+import Modules.GridFSCardData;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
@@ -18,7 +19,7 @@ import javax.swing.JPanel;
  */
 public class CardComponent extends JPanel{
     
-    public CardComponent(CardData data) {
+    public CardComponent(GridFSCardData data) {
         setPreferredSize(new Dimension(185,240));
         setBackground(Color.GRAY);
         
@@ -27,12 +28,11 @@ public class CardComponent extends JPanel{
         initComponents(data);
     }
     
-    private void initComponents(CardData data) {
+    private void initComponents(GridFSCardData data) {
         // Attempts to create an image for the card component
         try {
-            BufferedImage bf = ImageIO.read(new File(data.getPath()));
-            MovieScalableImage scalableImg = new MovieScalableImage(bf);
-            scalableImg.setPreferredSize(new Dimension(data.getWidth(), data.getHeight()));
+            MovieScalableImage scalableImg = new MovieScalableImage(data.getImage());
+            scalableImg.setPreferredSize(new Dimension(100, 100));
             scalableImg.setBounds(10, 10, 150, 230);
             add(scalableImg);
         } catch (Exception e) {
