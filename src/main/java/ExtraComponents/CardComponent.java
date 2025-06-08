@@ -31,7 +31,7 @@ public class CardComponent extends JPanel{
         // Attempts to create an image for the card component
         try {
             BufferedImage bf = ImageIO.read(new File(data.getPath()));
-            ScalableImagePanel scalableImg = new ScalableImagePanel(bf);
+            MovieScalableImage scalableImg = new MovieScalableImage(bf);
             scalableImg.setPreferredSize(new Dimension(data.getWidth(), data.getHeight()));
             scalableImg.setBounds(10, 10, 150, 230);
             add(scalableImg);

@@ -1,11 +1,19 @@
 package com.mycompany.oop.system;
 import ExtraComponents.AddMovieComponent;
+import ExtraComponents.CardComponent;
 import ExtraComponents.SideBar;
 import ExtraComponents.SideBarButton;
+import Modules.CardData;
 import Modules.FontLoader;
+import Modules.GridFSCardData;
 import Modules.StringManager;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.formdev.flatlaf.util.SystemInfo;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSBuckets;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -13,6 +21,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -30,7 +40,7 @@ public class MainPage extends JFrame{
     SideBarButton moviesBtn, ordersBtn, scheduleBtn;
     JPanel hostPanel, moviesPanel, ordersPanel, schedulePanel;
     CardLayout cardLayout;
-    JButton searchButton, addMovieButton;
+    JButton searchButton, addMovieButton, refreshButton;
     
     public static void main(String[] args) {
         try {
@@ -81,8 +91,6 @@ public class MainPage extends JFrame{
     private void initComponents() {
         
         //Side bar
-        
-        
         SideBar sidebar = new SideBar("src/main/resources/blurry-gradient-haikei.png");
         
         moviesBtn = new SideBarButton("src/main/resources/icons8-ticket-100.png", 38, StringManager.get("button.movies"));
@@ -137,6 +145,7 @@ public class MainPage extends JFrame{
        JPanel cardsPanel = new JPanel();
        JTextField searchBar = new JTextField();
        searchButton = new JButton("Search");
+       refreshButton = new JButton("Refresh");
        addMovieButton = new JButton("Add movie");
        
        controlPanel.setLayout(null);
@@ -145,20 +154,25 @@ public class MainPage extends JFrame{
        cardsPanel.putClientProperty("FlatLaf.style", "arc: 15");
        searchBar.putClientProperty("FlatLaf.style", "arc: 20");
        
+       refreshButton.setFont(fontLoader.loadHintFont(14));
+       refreshButton.setBackground(new Color(201, 40, 89));
+       refreshButton.setForeground(Color.WHITE);
+       
        searchButton.setFont(fontLoader.loadHintFont(14));
        searchButton.setBackground(new Color(201, 40, 89));
        searchButton.setForeground(Color.WHITE);
        
        addMovieButton.setFont(fontLoader.loadHintFont(14));
        addMovieButton.setBackground(new Color(201, 40, 89));
-       addMovieButton.setForeground(Color.WHITE);       
+       addMovieButton.setForeground(Color.WHITE);    
        
        controlPanel.setBounds(20, 20, 880, 50);
-//       controlPanel.setBackground(Color.BLUE);
        cardsPanel.setBounds(20, 80, 880, 710);
        
        searchBar.setBounds(5, 7, 300, 35);
        searchButton.setBounds(310, 8, 90, 33);
+       
+       refreshButton.setBounds(660, 8, 90, 33);
        
        addMovieButton.setBounds(760, 8, 110, 33);
        
@@ -167,7 +181,13 @@ public class MainPage extends JFrame{
        
        controlPanel.add(searchBar);
        controlPanel.add(searchButton);
+       controlPanel.add(refreshButton);
        controlPanel.add(addMovieButton);
+       
+       //Cards
+       CardComponent cc = new CardComponent(new CardData("src/main/resources/cardBg.jpg", 100, 100, "Jwick", "desc"));
+       cc.setBounds(10, 10, 185, 240);
+       cardsPanel.add(cc);
     }
     
     private void eventHandlers() {
@@ -214,6 +234,24 @@ public class MainPage extends JFrame{
            public void mouseReleased(MouseEvent e) {
                scheduleBtn.setBackground(null);
            }
+        });
+        
+        refreshButton.addActionListener(e -> {
+            try (MongoClient client = MongoClients.create("mongodb://localhost:27017")){
+                
+                //Access db
+                MongoDatabase movieDatabase = client.getDatabase("MovieImages");
+                
+                //Retrieve collection
+                GridFSBucket gridFSBucket = GridFSBuckets.create(movieDatabase);
+                
+                List<GridFSCardData> cardDataList = new ArrayList<>();
+                
+                
+                
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
         
         addMovieButton.addActionListener(e -> {
