@@ -152,7 +152,8 @@ public class LoginFrame extends JFrame{
                 Document user = userCollection.find(query).first();
                 
                 if (user != null) {
-                    JOptionPane.showMessageDialog(this, "Login Successful");
+                    new MainPage();
+                    this.dispose();
                 } else {
                     JOptionPane.showMessageDialog(this, "Incorrect Credentials");
                 }
