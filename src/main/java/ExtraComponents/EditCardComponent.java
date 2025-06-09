@@ -5,6 +5,7 @@
 package ExtraComponents;
 
 import Modules.FontLoader;
+import Modules.StringManager;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -15,6 +16,7 @@ import com.mongodb.client.gridfs.GridFSFindIterable;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -31,7 +33,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.bson.Document;
@@ -104,12 +105,12 @@ public class EditCardComponent extends JFrame{
     }
     
     private void initComponents() {
-        addImageBtn = new JButton("Change Image"); 
-        confirmBtn = new JButton("Update Movie");
+        addImageBtn = new JButton(StringManager.get("app.ChangeImage")); 
+        confirmBtn = new JButton(StringManager.get("app.UpdateMovie"));
         
-        movieTitleLabel = new JLabel("Movie Title");
-        movieCostLabel = new JLabel("Price");
-        movieDescriptionLabel = new JLabel("Description");
+        movieTitleLabel = new JLabel(StringManager.get("app.MovieTitle"));
+        movieCostLabel = new JLabel(StringManager.get("app.Price"));
+        movieDescriptionLabel = new JLabel(StringManager.get("app.Description"));
         
         movieTitleField = new JTextField(title);
         movieCostField = new JTextField(String.valueOf(movieCost));
@@ -132,24 +133,23 @@ public class EditCardComponent extends JFrame{
         confirmBtn.setBackground(new Color(201, 40, 89));
         confirmBtn.setForeground(Color.WHITE);
         
-        addImageBtn.setBounds(230, 20, 100, 30);
-        confirmBtn.setBounds(100, 300, 150, 40);
+        addImageBtn.setBounds(210, 20, 115, 35);
+        confirmBtn.setBounds(110, 300, 130, 40);
         
         movieTitleLabel.setBounds(20, 5, 100, 20);
         movieCostLabel.setBounds(20, 60, 100, 20);
         movieDescriptionLabel.setBounds(20, 115, 100, 20);
         
-        movieTitleField.setBounds(15, 25, 200, 30);
-        movieCostField.setBounds(15, 80, 200, 30);
+        movieTitleField.setBounds(15, 25, 180, 30);
+        movieCostField.setBounds(15, 80, 180, 30);
         
-        descriptionScrollPane.setBounds(15, 135, 200, 100);
+        descriptionScrollPane.setBounds(15, 135, 180, 100);
         
         add(addImageBtn); add(confirmBtn);
         add(movieTitleLabel); add(movieCostLabel); add(movieDescriptionLabel);
         add(movieTitleField); add(movieCostField);
         add(descriptionScrollPane);
         
-        storeImage();
         handleEvents();
     }
     
@@ -163,7 +163,7 @@ public class EditCardComponent extends JFrame{
             
             if (response == JFileChooser.APPROVE_OPTION) {
                  selectedFile = chooser.getSelectedFile();
-                 updateImagePreview(selectedFile);
+                 storeImage(selectedFile);
                  imageChanged = true;
              }
         });
@@ -198,8 +198,8 @@ public class EditCardComponent extends JFrame{
         });
     }
     
-    private void updateImagePreview(File imageFile) {
-        try {
+    private void storeImage(File imageFile) {
+         try {
             if (!imageFile.exists()) {
                 JOptionPane.showMessageDialog(this, "Selected file does not exist!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -211,48 +211,39 @@ public class EditCardComponent extends JFrame{
             }
             
             savedFile = imageFile;
+//            fileToUseLabel.setText("File Selected: " + imageFile.getName());
+            System.out.println("saved " + savedFile.getName());
             
-            // Remove existing preview components
-            getContentPane().removeAll();
-            initComponents(); // Re-initialize all components
+            Component[] components = getContentPane().getComponents();
+            for (Component comp : components) {
+                if (comp instanceof JLabel) {
+                    JLabel label = (JLabel) comp;
+                    if ("Preview".equals(label.getText()) || 
+                        label.getText().startsWith(StringManager.get("app.Preview"))) {
+                        remove(comp);
+                    }
+                }
+                if (comp instanceof ScalableImagePanel) {
+                    remove(comp);
+                }
+            }
             
-            // Add new preview
-            JLabel previewLabel = new JLabel("New Preview");
-            previewLabel.setBounds(255, 60, 100, 20);
+            JLabel previewLabel = new JLabel(StringManager.get("app.Preview"));
+            previewLabel.setBounds(240, 60, 100, 20);
             previewLabel.setFont(fontLoader.loadTitleFont(14f));
-            
-            BufferedImage preview = ImageIO.read(savedFile);
-            ScalableImagePanel scalingPreview = new ScalableImagePanel(preview);
-            scalingPreview.setPreferredSize(new Dimension(50, 50));
-            scalingPreview.setBounds(230, 90, 100, 100);
-            add(previewLabel);
-            add(scalingPreview);
-            
-            revalidate();
-            repaint();
-            
+            try {
+                BufferedImage preview = ImageIO.read(savedFile);
+                ScalableImagePanel scalingPreview = new ScalableImagePanel(preview);
+                scalingPreview.setPreferredSize(new Dimension(50, 50));
+                scalingPreview.setBounds(215, 90, 100, 100);
+                add(previewLabel);
+                add(scalingPreview);
+                revalidate();
+                repaint();
+            } catch (Exception e) {
+            }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error loading image preview: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
-    }
-    
-    private void storeImage() {
-        if (image == null) return;
-        
-        JLabel previewLabel = new JLabel("Preview");
-        previewLabel.setBounds(255, 60, 100, 20);
-        previewLabel.setFont(fontLoader.loadTitleFont(14f));
-        try {
-            ScalableImagePanel scalingPreview = new ScalableImagePanel(image);
-            scalingPreview.setPreferredSize(new Dimension(50, 50));
-            scalingPreview.setBounds(230, 90, 100, 100);
-            add(previewLabel);
-            add(scalingPreview);
-            revalidate();
-            repaint();
-        } catch (Exception e) {
-            e.printStackTrace();
+            
         }
     }
     

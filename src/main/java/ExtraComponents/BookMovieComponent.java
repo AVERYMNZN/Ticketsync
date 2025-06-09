@@ -5,12 +5,12 @@
 package ExtraComponents;
 
 import Modules.FontLoader;
+import Modules.StringManager;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.GridFSBucket;
-import com.mongodb.client.gridfs.GridFSBuckets;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 import java.awt.Color;
 import java.time.LocalDateTime;
@@ -23,7 +23,6 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 
 /**
  *
@@ -65,7 +64,7 @@ public class BookMovieComponent extends JFrame{
         this.movieCost = movieCost;
         
         setSize(350, 400);
-        setTitle("Book Movie");
+        setTitle(StringManager.get("app.BookMovie"));
         setResizable(false);
         setLayout(null);
         setLocationRelativeTo(null);
@@ -79,9 +78,10 @@ public class BookMovieComponent extends JFrame{
     }
     
     private void initComponents() {
-        bookTicketLabel = new JLabel("Book Ticket: ");
-        ticketQuantityLabel = new JLabel("Ticket Quantity: ");
-        movieCostLabel = new JLabel("Ticket Cost: ");
+        
+        bookTicketLabel = new JLabel(StringManager.get("app.BookTicket"));
+        ticketQuantityLabel = new JLabel(StringManager.get("app.TicketQuantity"));
+        movieCostLabel = new JLabel(StringManager.get("app.TicketCost"));
         
         movieTitleField = new JTextField(title);
         movieTitleField.setEnabled(false);
@@ -92,7 +92,7 @@ public class BookMovieComponent extends JFrame{
         Integer[] numbers = {1, 2, 3, 4, 5};
         ticketQuantityBox = new JComboBox<>(numbers);
         
-        bookMovieBtn = new JButton("Book Movie");
+        bookMovieBtn = new JButton(StringManager.get("app.BookMovie"));
         
         bookTicketLabel.setFont(fontLoader.loadTitleFont(14f));
         ticketQuantityLabel.setFont(fontLoader.loadTitleFont(14f));

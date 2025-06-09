@@ -92,7 +92,7 @@ public class MainPage extends JFrame{
         }
         
         setSize(1200, 800);
-        setTitle("TicketSync");
+        setTitle(StringManager.get("app.topHint"));
         setResizable(false);
         setLayout(null);
         setLocationRelativeTo(null);
@@ -162,9 +162,9 @@ public class MainPage extends JFrame{
        JPanel controlPanel = new JPanel();
        cardsPanel = new JPanel();
        JTextField searchBar = new JTextField();
-       searchButton = new JButton("Search");
-       refreshButton = new JButton("Refresh");
-       addMovieButton = new JButton("Add movie");
+       searchButton = new JButton(StringManager.get("button.search"));
+       refreshButton = new JButton(StringManager.get("button.refresh"));
+       addMovieButton = new JButton(StringManager.get("button.addMovie"));
        
        controlPanel.setLayout(null);
        
@@ -360,7 +360,7 @@ public class MainPage extends JFrame{
                         System.out.println("Successfully created BufferedImage: " + image.getWidth() + "x" + image.getHeight());
                     } else {
                         System.out.println("Failed to create BufferedImage - ImageIO.read returned null");
-                        // Try to determine why
+                        
                         System.out.println("Content type: " + contentType);
                         System.out.println("First few bytes: ");
                         for (int i = 0; i < Math.min(10, imageBytes.length); i++) {
@@ -376,7 +376,7 @@ public class MainPage extends JFrame{
                         gridFSFile.getObjectId().toString(),
                         title,
                         description,
-                        image, // This might be null
+                        image, 
                         contentType,
                         movieCost
                     );

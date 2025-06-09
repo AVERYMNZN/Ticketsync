@@ -5,6 +5,7 @@
 package ExtraComponents;
 
 import Modules.FontLoader;
+import Modules.StringManager;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -13,6 +14,7 @@ import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSBuckets;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -77,7 +79,7 @@ public class AddMovieComponent extends JFrame {
         initializeMongoConnection();
         
         setSize(350, 400);
-        setTitle("Add Image");
+        setTitle(StringManager.get("app.addImage"));
         setResizable(false);
         setLayout(null);
         setLocationRelativeTo(null);
@@ -91,13 +93,13 @@ public class AddMovieComponent extends JFrame {
     }
     
     private void initComponents() {
-        addImageBtn = new JButton("Add Image"); 
-        confirmBtn = new JButton("Confirm");
+        addImageBtn = new JButton(StringManager.get("app.addImage")); 
+        confirmBtn = new JButton(StringManager.get("button.Confirm"));
         
 //        fileToUseLabel = new JLabel("File Selected: ");
-        movieTitleLabel = new JLabel("Movie Title");
-        movieCostLabel = new JLabel("Price");
-        movieDescriptionLabel = new JLabel("Description");
+        movieTitleLabel = new JLabel(StringManager.get("app.MovieTitle"));
+        movieCostLabel = new JLabel(StringManager.get("app.Price"));
+        movieDescriptionLabel = new JLabel(StringManager.get("app.Description"));
         
         movieTitleField = new JTextField();
         movieCostField = new JTextField();
@@ -111,7 +113,9 @@ public class AddMovieComponent extends JFrame {
         descriptionScrollPane.setPreferredSize(new Dimension(200, 200));
         descriptionScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         
-
+        addImageBtn.setFont(fontLoader.loadHintFont(14));
+        confirmBtn.setFont(fontLoader.loadHintFont(14));
+        
 //        fileToUseLabel.setFont(fontLoader.loadHintFont(14f));
         movieTitleLabel.setFont(fontLoader.loadTitleFont(14f));
         movieCostLabel.setFont(fontLoader.loadTitleFont(14f));
@@ -123,7 +127,7 @@ public class AddMovieComponent extends JFrame {
         confirmBtn.setBackground(new Color(201, 40, 89));
         confirmBtn.setForeground(Color.WHITE);
         
-        addImageBtn.setBounds(230, 20, 100, 30);
+        addImageBtn.setBounds(210, 20, 115, 35);
         confirmBtn.setBounds(115, 300, 100, 40);
         
 //        fileToUseLabel.setBounds(115, 35, 200, 20);
@@ -132,10 +136,10 @@ public class AddMovieComponent extends JFrame {
         movieCostLabel.setBounds(20, 60, 100, 20);
         movieDescriptionLabel.setBounds(20, 115, 100, 20);
         
-        movieTitleField.setBounds(15, 25, 200, 30);
-        movieCostField.setBounds(15, 80, 200, 30);
+        movieTitleField.setBounds(15, 25, 180, 30);
+        movieCostField.setBounds(15, 80, 180, 30);
         
-        descriptionScrollPane.setBounds(15, 135, 200, 100);
+        descriptionScrollPane.setBounds(15, 135, 180, 100);
         
         add(addImageBtn); add(confirmBtn);
         add(movieTitleLabel); add(movieCostLabel); add(movieDescriptionLabel);
@@ -213,14 +217,28 @@ public class AddMovieComponent extends JFrame {
 //            fileToUseLabel.setText("File Selected: " + imageFile.getName());
             System.out.println("saved " + savedFile.getName());
             
-            JLabel previewLabel = new JLabel("Preview");
-            previewLabel.setBounds(255, 60, 100, 20);
+            Component[] components = getContentPane().getComponents();
+            for (Component comp : components) {
+                if (comp instanceof JLabel) {
+                    JLabel label = (JLabel) comp;
+                    if ("Preview".equals(label.getText()) || 
+                        label.getText().startsWith(StringManager.get("app.Preview"))) {
+                        remove(comp);
+                    }
+                }
+                if (comp instanceof ScalableImagePanel) {
+                    remove(comp);
+                }
+            }
+            
+            JLabel previewLabel = new JLabel(StringManager.get("app.Preview"));
+            previewLabel.setBounds(240, 60, 100, 20);
             previewLabel.setFont(fontLoader.loadTitleFont(14f));
             try {
                 BufferedImage preview = ImageIO.read(savedFile);
                 ScalableImagePanel scalingPreview = new ScalableImagePanel(preview);
                 scalingPreview.setPreferredSize(new Dimension(50, 50));
-                scalingPreview.setBounds(230, 90, 100, 100);
+                scalingPreview.setBounds(215, 90, 100, 100);
                 add(previewLabel);
                 add(scalingPreview);
                 revalidate();

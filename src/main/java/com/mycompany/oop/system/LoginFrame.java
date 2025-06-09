@@ -143,7 +143,7 @@ public class LoginFrame extends JFrame{
             try (MongoClient client = MongoClients.create("mongodb://localhost:27017")){
                 
                 //Attempt access to db
-                MongoDatabase db = client.getDatabase("authCredentials");
+                MongoDatabase db = client.getDatabase("AuthCredentials");
                 MongoCollection<Document> userCollection = db.getCollection("userlogin");
                 
                 Document query = new Document("username", username)
@@ -155,7 +155,7 @@ public class LoginFrame extends JFrame{
                     new MainPage();
                     this.dispose();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Incorrect Credentials");
+                    JOptionPane.showMessageDialog(this, StringManager.get("login.unsuccessful"));
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -172,7 +172,7 @@ public class LoginFrame extends JFrame{
         }
         
         setSize(850, 550);
-        setTitle("TicketSync");
+        setTitle(StringManager.get("app.topHint"));
         setResizable(false);
         setLayout(null);
         setLocationRelativeTo(null);
