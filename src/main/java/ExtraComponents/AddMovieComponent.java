@@ -285,7 +285,7 @@ public class AddMovieComponent extends JFrame {
 
             JOptionPane.showMessageDialog(this, successMessage, "Success", JOptionPane.INFORMATION_MESSAGE);
 
-            // Optionally clear the form
+            
             movieTitleField.setText("");
             movieCostField.setText("");
             descriptionArea.setText("");

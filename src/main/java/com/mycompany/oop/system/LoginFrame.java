@@ -164,9 +164,9 @@ public class LoginFrame extends JFrame{
     }
     
     private void setFrame() {
-        setUndecorated(true); // Remove title bar
+        setUndecorated(true); // Removes the title bar
         
-        // Configure FlatLaf properties for rounded appearance
+        // FlatLaf property for rounded appearance
         if (SystemInfo.isMacOS) {
             getRootPane().putClientProperty("apple.awt.windowTitleVisible", false);
         }
@@ -178,7 +178,7 @@ public class LoginFrame extends JFrame{
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        // Create draggable header area (top 40 pixels)
+        // Create draggable header area
         headerPanel = new JPanel();
         headerPanel.setBounds(0, 0, 850, 40);
         headerPanel.setBackground(new Color(0, 0, 0, 0)); // Transparent
@@ -191,7 +191,7 @@ public class LoginFrame extends JFrame{
     }
     
     private void setupWindowDragging() {
-        // Make only the header panel (top 40 pixels) draggable
+        // Make the header panel (top 40 pixels) draggable
         headerPanel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 mouseClickPoint = e.getPoint();
@@ -221,7 +221,7 @@ public class LoginFrame extends JFrame{
         });
     }
     
-    // Override setSize to maintain rounded shape if you ever resize
+    // Override setSize to maintain rounded shape 
     @Override
     public void setSize(int width, int height) {
         super.setSize(width, height);

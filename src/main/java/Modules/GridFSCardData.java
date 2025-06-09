@@ -5,6 +5,10 @@
 package Modules;
 
 import java.awt.image.BufferedImage;
+/**
+ *
+ * @author avery
+ */
 
 public class GridFSCardData {
     private String id;

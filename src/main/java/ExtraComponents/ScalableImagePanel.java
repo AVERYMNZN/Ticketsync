@@ -9,7 +9,7 @@ import java.io.IOException;
 // Step 1: Create the custom JPanel class
 public class ScalableImagePanel extends JPanel {
     private BufferedImage image;
-    private double maxScale = 1.0; // Only scale down, never up
+    private double maxScale = 1.0; 
     
     public ScalableImagePanel(BufferedImage image) {
         this.image = image;

@@ -8,11 +8,15 @@ import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
+/**
+ *
+ * @author avery
+ */
 
 public class MovieScalableImage extends JPanel {
     private BufferedImage image;
-    private double maxScale = 1.0; // Only scale down, never up
-    private double coverAspectRatio = 2.0 / 3.0; // Standard movie poster aspect ratio (width/height)
+    private double maxScale = 1.0; // Only scale down
+    private double coverAspectRatio = 2.0 / 3.0; // Standard movie poster aspect ratio 
     private int cornerRadius = 10; // Default corner radius
     
     public MovieScalableImage(BufferedImage image) {

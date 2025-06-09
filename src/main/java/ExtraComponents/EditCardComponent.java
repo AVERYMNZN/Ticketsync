@@ -82,7 +82,7 @@ public class EditCardComponent extends JFrame{
     
     public EditCardComponent(String title, String description, BufferedImage image, long movieCost) {
         
-        this.originalTitle = title; // Store original title for database lookup
+        this.originalTitle = title; 
         this.title = title;
         this.description = description;
         this.image = image;
@@ -307,10 +307,10 @@ public class EditCardComponent extends JFrame{
                 options
             );
             
-            // Delete the old file
+            
             gridFSBucket.delete(oldFileId);
             
-            // Success message
+            
             String successMessage = String.format(
                 "Movie updated successfully!\n\nTitle: %s\nDescription: %s\nPrice: $%.2f\nFile ID: %s",
                 newTitle,
@@ -325,7 +325,7 @@ public class EditCardComponent extends JFrame{
             baos.close();
             bais.close();
             
-            // Close the dialog
+            
             this.dispose();
             
         } catch (Exception e) {

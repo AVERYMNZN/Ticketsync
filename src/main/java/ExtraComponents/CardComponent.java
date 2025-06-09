@@ -61,19 +61,15 @@ public class CardComponent extends JPanel{
             
             if (image != null) {
                 // Create a landscape-oriented image component
-                // Using 16:9 aspect ratio for a more rectangular, landscape look
+                // Using 16:9 aspect ratio for rectangular, landscape look
                 MovieScalableImage scalableImg = new MovieScalableImage(image, 16.0 / 9.0);
                 
                 
                 // Position the image at the top of the card with some padding
-                // Leave space at the bottom for text (about 60-80 pixels)
+                
                 scalableImg.setBounds(10, 10, 165, 93); // Width: 165, Height: 93 (16:9 ratio)
                 add(scalableImg);
                 System.out.println("Successfully added MovieScalableImage with landscape aspect ratio");
-                
-                // Alternative: If you want a different rectangular ratio, you can use:
-                // scalableImg = new MovieScalableImage(image, 3.0 / 2.0); // 3:2 ratio
-                // scalableImg.setBounds(10, 10, 165, 110); // Adjust height accordingly
                 
             } else {
                 System.out.println("Image is null, cannot create MovieScalableImage");
