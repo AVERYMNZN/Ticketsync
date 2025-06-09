@@ -29,6 +29,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -46,7 +47,7 @@ public class EditCardComponent extends JFrame{
     FontLoader fontLoader = new FontLoader();
     
     JButton addImageBtn, confirmBtn;
-    JLabel fileToUseLabel, movieTitleLabel, movieCostLabel, movieDescriptionLabel;
+    JLabel fileToUseLabel, movieTitleLabel, movieCostLabel, movieDescriptionLabel, previewLabel;
     JTextField movieTitleField, movieCostField;
     JTextArea descriptionArea;
     JScrollPane descriptionScrollPane;
@@ -150,6 +151,26 @@ public class EditCardComponent extends JFrame{
         add(movieTitleField); add(movieCostField);
         add(descriptionScrollPane);
         
+        if (this.image != null) {
+        try {
+            previewLabel = new JLabel(StringManager.get("app.Preview")); // Initialize here!
+            previewLabel.setBounds(240, 60, 100, 20);
+            previewLabel.setFont(fontLoader.loadTitleFont(14f));
+            
+            ScalableImagePanel scalingPreview = new ScalableImagePanel(this.image);
+            scalingPreview.setPreferredSize(new Dimension(50, 50));
+            scalingPreview.setBounds(215, 90, 100, 100);
+            
+            add(previewLabel);
+            add(scalingPreview);
+            revalidate();
+            repaint();
+        } catch (Exception e) {
+            System.err.println("Error creating preview: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+        
         handleEvents();
     }
     
@@ -228,7 +249,7 @@ public class EditCardComponent extends JFrame{
                 }
             }
             
-            JLabel previewLabel = new JLabel(StringManager.get("app.Preview"));
+            previewLabel = new JLabel(StringManager.get("app.Preview"));
             previewLabel.setBounds(240, 60, 100, 20);
             previewLabel.setFont(fontLoader.loadTitleFont(14f));
             try {

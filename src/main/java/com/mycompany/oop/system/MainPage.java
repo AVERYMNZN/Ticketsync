@@ -146,9 +146,9 @@ public class MainPage extends JFrame{
         moviesPanel.setBounds(0, 0, 930, 800);
         moviesPanel.setBackground(new Color(245, 245, 239 ));
         ordersPanel.setBounds(0, 0, 930, 800);
-        ordersPanel.setBackground(Color.PINK);
+//        ordersPanel.setBackground(Color.PINK);
         schedulePanel.setBounds(0, 0, 930, 800);
-        schedulePanel.setBackground(Color.GREEN);
+//        schedulePanel.setBackground(Color.GREEN);
         
         hostPanel.add(moviesPanel, "moviesPanel"); 
         hostPanel.add(ordersPanel, "ordersPanel"); 

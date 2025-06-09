@@ -9,7 +9,13 @@ import Modules.OrderData;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.GridFSBucket;
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.RoundRectangle2D;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -26,6 +32,9 @@ public class OrderCardComponent extends JPanel {
     private MongoClient mongoClient;
     private MongoDatabase database;
     private GridFSBucket gridFSBucket;
+    
+    private final Color borderColor = new Color(201, 40, 89);
+    private final int arc = 15;
     
     JLabel title, ticketQuantity, totalCost, dateTime;
     
@@ -62,6 +71,33 @@ public class OrderCardComponent extends JPanel {
         add(ticketQuantity);
         add(totalCost);
         add(dateTime);
+    }
+    
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        float strokeWidth = 1f;
+        float arcF = arc;
+        float offset = strokeWidth / 2f;
+
+        g2.setColor(borderColor);
+        g2.setStroke(new BasicStroke(strokeWidth));
+
+        // Use a precise floating-point rounded rectangle
+        g2.draw(new RoundRectangle2D.Float(
+            offset,
+            offset,
+            getWidth() - strokeWidth,
+            getHeight() - strokeWidth,
+            arcF,
+            arcF
+        ));
+
+        g2.dispose();
     }
     
 }
