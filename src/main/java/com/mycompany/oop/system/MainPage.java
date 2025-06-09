@@ -2,6 +2,7 @@ package com.mycompany.oop.system;
 import ExtraComponents.AddMovieComponent;
 import ExtraComponents.BookMovieComponent;
 import ExtraComponents.CardComponent;
+import ExtraComponents.EditCardComponent;
 import ExtraComponents.OrderCardComponent;
 import ExtraComponents.SideBar;
 import ExtraComponents.SideBarButton;
@@ -33,7 +34,6 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
@@ -466,6 +466,10 @@ public class MainPage extends JFrame{
                     
                     revalidate();
                     repaint();
+                });
+                
+                cardComponent.getEditCardBtn().addActionListener(e -> {
+                   EditCardComponent editCard = new EditCardComponent(cardData.getTitle(), cardData.getDescription(), cardData.getImage(), cardData.getMovieCost()); 
                 });
                 
                 displayedCards.add(cardComponent);
